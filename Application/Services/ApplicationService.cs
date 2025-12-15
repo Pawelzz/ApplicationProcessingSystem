@@ -26,5 +26,15 @@ namespace Application.Services
         {
             return _applications;
         }
+        public bool ChangeStatus(Guid id, ApplicationStatus newStatus)
+        {
+            var application = _applications.Find(app => app.Id == id);
+            if (application == null)
+            {
+                return false;
+            }
+            application.Status = newStatus;
+            return true;
+        }
     };
 }

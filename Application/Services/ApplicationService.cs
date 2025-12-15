@@ -44,5 +44,15 @@ namespace Application.Services
         {
             return _applications.FindAll(app => app.Status == status);
         }
+        public bool Delete(Guid id)
+        {
+            var application = _applications.Find(app => app.Id == id);
+            if (application == null)
+            {
+                return false;
+            }
+            _applications.Remove(application);
+            return true;
+        }
     };
 }

@@ -27,7 +27,8 @@ while (continueInput)
     Console.WriteLine("2. Zmien status wniosku");
     Console.WriteLine("3. Pokaż wszystkie wnioski");
     Console.WriteLine("4. Pokaz wnioski wg statusu");
-    Console.WriteLine("5. Wyjście i zapis");
+    Console.WriteLine("5. Usun wniosek");
+    Console.WriteLine("6. Wyjście i zapis");
     Console.Write("Twój wybór: ");
 
     var choice = Console.ReadLine();
@@ -68,20 +69,20 @@ while (continueInput)
                 Console.WriteLine("3. Completed");
                 Console.WriteLine("4. Rejected");
                 var statusChoice = Console.ReadLine();
-                Domain.Enums.ApplicationStatus newStatus;
+                ApplicationStatus newStatus;
                 switch (statusChoice)
                 {
                     case "1":
-                        newStatus = Domain.Enums.ApplicationStatus.New;
+                        newStatus = ApplicationStatus.New;
                         break;
                     case "2":
-                        newStatus = Domain.Enums.ApplicationStatus.InProgress;
+                        newStatus = ApplicationStatus.InProgress;
                         break;
                     case "3":
-                        newStatus = Domain.Enums.ApplicationStatus.Completed;
+                        newStatus = ApplicationStatus.Completed;
                         break;
                     case "4":
-                        newStatus = Domain.Enums.ApplicationStatus.Rejected;
+                        newStatus = ApplicationStatus.Rejected;
                         break;
                     default:
                         Console.WriteLine("Nieprawidłowy wybór statusu.");
@@ -97,11 +98,10 @@ while (continueInput)
                     Console.WriteLine("Nie znaleziono wniosku o podanym ID.");
                 }
             }
-                else
-                {
-                    Console.WriteLine("Nieprawidłowy format ID.");
-                }
-    
+            else
+            {
+                Console.WriteLine("Nieprawidłowy format ID.");
+            }
             break;
 
         case "3":
@@ -148,6 +148,37 @@ while (continueInput)
             break;
 
         case "5":
+            var applications = service.GetAll();
+            if (!applications.Any())
+            {
+                Console.WriteLine("Brak wniosków do usunięcia.");
+                break;
+            }
+
+            PrintApplications(applications);
+
+            Console.Write("Podaj ID wniosku do usunięcia: ");
+            var idDelete = Console.ReadLine();
+
+            if (Guid.TryParse(idDelete, out Guid appDeleteId))
+            {
+                bool deleted = service.Delete(appDeleteId);
+                if (deleted)
+                {
+                    Console.WriteLine($"Wniosek {appDeleteId} został usunięty.");
+                }
+                else
+                {
+                    Console.WriteLine("Nie znaleziono wniosku o podanym ID.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nieprawidłowy format ID.");
+            }
+            break;
+
+        case "6":
             continueInput = false;
 
             var applicationsToSave = service.GetAll();

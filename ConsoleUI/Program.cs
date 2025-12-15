@@ -1,9 +1,10 @@
 ﻿using Application.Services;
 using Domain.Entities;
+using Domain.Enums;
 using System;
+using System.IO;
 using System.Numerics;
 using System.Text.Json;
-using System.IO;
 
 var service = new ApplicationService();
 bool continueInput = true;
@@ -25,7 +26,8 @@ while (continueInput)
     Console.WriteLine("1. Dodaj wniosek");
     Console.WriteLine("2. Zmien status wniosku");
     Console.WriteLine("3. Pokaż wszystkie wnioski");
-    Console.WriteLine("4. Wyjście i zapis");
+    Console.WriteLine("4. Pokaz wnioski wg statusu");
+    Console.WriteLine("5. Wyjście i zapis");
     Console.Write("Twój wybór: ");
 
     var choice = Console.ReadLine();
@@ -116,6 +118,36 @@ while (continueInput)
             break;
 
         case "4":
+            Console.WriteLine("Wybierz status wg ktorego chcesz filtrowac:");
+            Console.WriteLine("1. New");
+            Console.WriteLine("2. InProgress");
+            Console.WriteLine("3. Completed");
+            Console.WriteLine("4. Rejected");
+            Console.Write("Twój wybór: ");
+
+            string? filter = Console.ReadLine();
+
+            if (!Enum.TryParse<ApplicationStatus>(filter, out var status) ||
+                !Enum.IsDefined(typeof(ApplicationStatus), status))
+            {
+                Console.WriteLine("Nieprawidłowy wybór statusu.");
+                break;
+            }
+
+            var filteredApps = service.FilterByStatus(status);
+
+            foreach (var filtered_app in filteredApps)
+            {
+                Console.WriteLine(
+                    $"ID: {filtered_app.Id}, " +
+                    $"Imie: {filtered_app.ApplicantName}, " +
+                    $"Status: {filtered_app.Status}, " +
+                    $"Data: {filtered_app.CreatedAt}");
+            }
+
+            break;
+
+        case "5":
             continueInput = false;
 
             var applicationsToSave = service.GetAll();

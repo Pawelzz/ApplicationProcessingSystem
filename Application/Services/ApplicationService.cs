@@ -40,5 +40,9 @@ namespace Application.Services
         {
             _applications.Add(application);
         }
+        public List<ApplicationRequest> FilterByStatus(ApplicationStatus status)
+        {
+            return _applications.FindAll(app => app.Status == status);
+        }
     };
 }

@@ -26,5 +26,5 @@ namespace Application.Services
         {
             return _applications;
         }
-    }
+    };
 }

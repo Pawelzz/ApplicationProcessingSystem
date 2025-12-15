@@ -2,10 +2,21 @@
 using Domain.Entities;
 using System;
 using System.Numerics;
+using System.Text.Json;
+using System.IO;
 
 var service = new ApplicationService();
-
 bool continueInput = true;
+string filePath = "applications.json";
+
+try
+{
+    LoadApplicationsFromFile(service, filePath);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Błąd wczytywania pliku: {ex.Message}");
+}
 
 while (continueInput)
 {   
@@ -14,7 +25,7 @@ while (continueInput)
     Console.WriteLine("1. Dodaj wniosek");
     Console.WriteLine("2. Zmien status wniosku");
     Console.WriteLine("3. Pokaż wszystkie wnioski");
-    Console.WriteLine("4. Wyjście");
+    Console.WriteLine("4. Wyjście i zapis");
     Console.Write("Twój wybór: ");
 
     var choice = Console.ReadLine();
@@ -106,6 +117,11 @@ while (continueInput)
 
         case "4":
             continueInput = false;
+
+            var applicationsToSave = service.GetAll();
+            SaveApplicationsToFile(applicationsToSave, filePath);
+            Console.WriteLine($"Wnioski zostały zapisane do pliku: {filePath}");
+
             break;
         default:
             Console.WriteLine("Nieprawidłowy wybór. Spróbuj ponownie.");
@@ -121,5 +137,29 @@ static void PrintApplications(IEnumerable<ApplicationRequest> applications)
     foreach (var app in applications)
     {
         Console.WriteLine($"ID: {app.Id}, Imie: {app.ApplicantName}, Status: {app.Status}, Data: {app.CreatedAt}");
+    }
+}
+
+static void SaveApplicationsToFile(IEnumerable<ApplicationRequest> applications, string filePath)
+{
+    var options = new JsonSerializerOptions { WriteIndented = true };
+    var json = JsonSerializer.Serialize(applications, options);
+    File.WriteAllText(filePath, json);
+}
+
+static void LoadApplicationsFromFile(ApplicationService service, string filePath)
+{
+    if (File.Exists(filePath))
+    {
+        var json = File.ReadAllText(filePath);
+        var applications = JsonSerializer.Deserialize<List<ApplicationRequest>>(json);
+        if (applications != null)
+        {
+            foreach (var app in applications)
+            {
+                // Assuming ApplicationService has a method to add existing applications
+                service.AddExistingApplication(app);
+            }
+        }
     }
 }

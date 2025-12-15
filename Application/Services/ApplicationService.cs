@@ -36,5 +36,9 @@ namespace Application.Services
             application.Status = newStatus;
             return true;
         }
+        public void AddExistingApplication(ApplicationRequest application)
+        {
+            _applications.Add(application);
+        }
     };
 }

@@ -54,5 +54,15 @@ namespace Application.Services
             _applications.Remove(application);
             return true;
         }
+        public ApplicationRequest? EditApplicantName(Guid id, string newName)
+        {
+            var application = _applications.Find(app => app.Id == id);
+            if (application == null)
+            {
+                return null;
+            }
+            application.ApplicantName = newName;
+            return application;
+        }
     };
 }

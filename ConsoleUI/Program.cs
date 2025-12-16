@@ -25,10 +25,11 @@ while (continueInput)
     Console.WriteLine("\nWybierz opcję:");
     Console.WriteLine("1. Dodaj wniosek");
     Console.WriteLine("2. Zmien status wniosku");
-    Console.WriteLine("3. Pokaż wszystkie wnioski");
-    Console.WriteLine("4. Pokaz wnioski wg statusu");
-    Console.WriteLine("5. Usun wniosek");
-    Console.WriteLine("6. Wyjście i zapis");
+    Console.WriteLine("3. Zmien imie we wniosku");
+    Console.WriteLine("4. Pokaż wszystkie wnioski");
+    Console.WriteLine("5. Pokaz wnioski wg statusu");
+    Console.WriteLine("6. Usun wniosek");
+    Console.WriteLine("7. Wyjście i zapis");
     Console.Write("Twój wybór: ");
 
     var choice = Console.ReadLine();
@@ -40,6 +41,12 @@ while (continueInput)
         case "1":
             Console.Write("Podaj imie: ");
             var name = Console.ReadLine() ?? string.Empty;
+
+            while (string.IsNullOrWhiteSpace(name))
+            {
+                Console.Write("Imie nie może być puste. Podaj imie: ");
+                name = Console.ReadLine() ?? string.Empty;
+            }
 
             var application = service.Create(name);
 
@@ -105,6 +112,44 @@ while (continueInput)
             break;
 
         case "3":
+            var applicationsToEdit = service.GetAll();
+            if (applicationsToEdit.Count == 0)
+            {
+                Console.WriteLine("Brak wniosków do edycji.");
+                break;
+            }
+            PrintApplications(applicationsToEdit);
+            Console.Write("Podaj ID wniosku do zmiany imienia: ");
+            var idEditInput = Console.ReadLine();
+            if (Guid.TryParse(idEditInput, out Guid appEditId))
+            {
+                Console.Write("Podaj nowe imie: ");
+                var newName = Console.ReadLine() ?? string.Empty;
+
+                while (string.IsNullOrWhiteSpace(newName))
+                {
+                    Console.Write("Imie nie może być puste. Podaj imie: ");
+                    newName = Console.ReadLine() ?? string.Empty;
+                }
+
+                var editedApp = service.EditApplicantName(appEditId, newName);
+                if (editedApp != null)
+                {
+                    Console.WriteLine("Imie we wniosku zostało zaktualizowane.");
+                }
+                else
+                {
+                    Console.WriteLine("Nie znaleziono wniosku o podanym ID.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nieprawidłowy format ID.");
+            }
+            break;
+
+
+        case "4":
             var allApps = service.GetAll();
 
             if (!allApps.Any())
@@ -117,7 +162,7 @@ while (continueInput)
 
             break;
 
-        case "4":
+        case "5":
             Console.WriteLine("Wybierz status wg ktorego chcesz filtrowac:");
             Console.WriteLine("1. New");
             Console.WriteLine("2. InProgress");
@@ -147,7 +192,7 @@ while (continueInput)
 
             break;
 
-        case "5":
+        case "6":
             var applications = service.GetAll();
             if (!applications.Any())
             {
@@ -178,7 +223,7 @@ while (continueInput)
             }
             break;
 
-        case "6":
+        case "7":
             continueInput = false;
 
             var applicationsToSave = service.GetAll();

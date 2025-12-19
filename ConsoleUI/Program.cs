@@ -27,9 +27,10 @@ while (continueInput)
     Console.WriteLine("2. Zmien status wniosku");
     Console.WriteLine("3. Zmien imie we wniosku");
     Console.WriteLine("4. Pokaż wszystkie wnioski");
-    Console.WriteLine("5. Pokaz wnioski wg statusu");
+    Console.WriteLine("5. Filtruj wnioski");
     Console.WriteLine("6. Usun wniosek");
     Console.WriteLine("7. Wyjście i zapis");
+    Console.WriteLine("\n=====================================");
     Console.Write("Twój wybór: ");
 
     var choice = Console.ReadLine();
@@ -163,31 +164,68 @@ while (continueInput)
             break;
 
         case "5":
-            Console.WriteLine("Wybierz status wg ktorego chcesz filtrowac:");
-            Console.WriteLine("1. New");
-            Console.WriteLine("2. InProgress");
-            Console.WriteLine("3. Completed");
-            Console.WriteLine("4. Rejected");
+
+            Console.WriteLine("1. Filtruj wnioski według statusu");
+            Console.WriteLine("2. Filtruj wnioski według daty");
             Console.Write("Twój wybór: ");
+            var filterChoice = Console.ReadLine();
 
-            string? filter = Console.ReadLine();
-
-            if (!Enum.TryParse<ApplicationStatus>(filter, out var status) ||
-                !Enum.IsDefined(typeof(ApplicationStatus), status))
+            if (filterChoice == "1")
             {
-                Console.WriteLine("Nieprawidłowy wybór statusu.");
+                Console.WriteLine("Wybierz status wg ktorego chcesz filtrowac:");
+                Console.WriteLine("1. New");
+                Console.WriteLine("2. InProgress");
+                Console.WriteLine("3. Completed");
+                Console.WriteLine("4. Rejected");
+                Console.Write("Twój wybór: ");
+
+                string? filter = Console.ReadLine();
+
+                if (!Enum.TryParse<ApplicationStatus>(filter, out var status) ||
+                    !Enum.IsDefined(typeof(ApplicationStatus), status))
+                {
+                    Console.WriteLine("Nieprawidłowy wybór statusu.");
+                    break;
+                }
+
+                var filteredApps = service.FilterByStatus(status);
+
+                foreach (var filtered_app in filteredApps)
+                {
+                    Console.WriteLine(
+                        $"ID: {filtered_app.Id}, " +
+                        $"Imie: {filtered_app.ApplicantName}, " +
+                        $"Status: {filtered_app.Status}, " +
+                        $"Data: {filtered_app.CreatedAt}");
+                }
+
                 break;
             }
 
-            var filteredApps = service.FilterByStatus(status);
-
-            foreach (var filtered_app in filteredApps)
+            else if (filterChoice == "2")
             {
-                Console.WriteLine(
-                    $"ID: {filtered_app.Id}, " +
-                    $"Imie: {filtered_app.ApplicantName}, " +
-                    $"Status: {filtered_app.Status}, " +
-                    $"Data: {filtered_app.CreatedAt}");
+                Console.Write("Podaj datę początkową (yyyy-MM-dd): ");
+                var startDateInput = Console.ReadLine();
+                Console.Write("Podaj datę końcową (yyyy-MM-dd): ");
+                var endDateInput = Console.ReadLine();
+                if (DateTime.TryParse(startDateInput, out DateTime startDate) &&
+                    DateTime.TryParse(endDateInput, out DateTime endDate))
+                {
+                    var filteredByDateApps = service.FilterByDateRange(startDate, endDate);
+                    foreach (var filtered_app in filteredByDateApps)
+                    {
+                        Console.WriteLine(
+                            $"ID: {filtered_app.Id}, " +
+                            $"Imie: {filtered_app.ApplicantName}, " +
+                            $"Status: {filtered_app.Status}, " +
+                            $"Data: {filtered_app.CreatedAt}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Nieprawidłowy format daty.");
+                }
+                break;
             }
 
             break;

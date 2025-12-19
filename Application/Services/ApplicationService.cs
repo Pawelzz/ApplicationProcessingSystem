@@ -64,5 +64,9 @@ namespace Application.Services
             application.ApplicantName = newName;
             return application;
         }
+        public List<ApplicationRequest> FilterByDateRange(DateTime startDate, DateTime endDate)
+        {
+            return _applications.FindAll(app => app.CreatedAt >= startDate && app.CreatedAt <= endDate);
+        }
     };
 }

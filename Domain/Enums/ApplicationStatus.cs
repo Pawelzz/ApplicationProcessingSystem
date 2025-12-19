@@ -11,4 +11,11 @@ namespace Domain.Enums
         Completed = 3,
         Rejected = 4,
     }
+    public enum SortBy
+    {
+        NameAsc,
+        NameDesc,
+        DateAsc,
+        DateDesc
+    }
 }

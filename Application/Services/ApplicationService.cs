@@ -68,5 +68,16 @@ namespace Application.Services
         {
             return _applications.FindAll(app => app.CreatedAt >= startDate && app.CreatedAt <= endDate);
         }
+        public List<ApplicationRequest> SortApplications(List<ApplicationRequest> last_view, SortBy sortBy)
+        {
+            return sortBy switch
+            {
+                SortBy.NameAsc => last_view.OrderBy(app => app.ApplicantName).ToList(),
+                SortBy.NameDesc => last_view.OrderByDescending(app => app.ApplicantName).ToList(),
+                SortBy.DateAsc => last_view.OrderBy(app => app.CreatedAt).ToList(),
+                SortBy.DateDesc => last_view.OrderByDescending(app => app.CreatedAt).ToList(),
+                _ => last_view
+            };
+        }
     };
 }

@@ -9,6 +9,7 @@ using System.Text.Json;
 var service = new ApplicationService();
 bool continueInput = true;
 string filePath = "applications.json";
+List<ApplicationRequest> _lastView = new();
 
 try
 {
@@ -28,8 +29,9 @@ while (continueInput)
     Console.WriteLine("3. Zmien imie we wniosku");
     Console.WriteLine("4. Pokaż wszystkie wnioski");
     Console.WriteLine("5. Filtruj wnioski");
-    Console.WriteLine("6. Usun wniosek");
-    Console.WriteLine("7. Wyjście i zapis");
+    Console.WriteLine("6. Sortuj wnioski");
+    Console.WriteLine("7. Usun wniosek");
+    Console.WriteLine("8. Wyjście i zapis");
     Console.WriteLine("\n=====================================");
     Console.Write("Twój wybór: ");
 
@@ -158,7 +160,7 @@ while (continueInput)
                 Console.WriteLine("Brak wniosków.");
                 break;
             }
-         
+            
             PrintApplications(allApps);
 
             break;
@@ -189,16 +191,8 @@ while (continueInput)
                 }
 
                 var filteredApps = service.FilterByStatus(status);
-
-                foreach (var filtered_app in filteredApps)
-                {
-                    Console.WriteLine(
-                        $"ID: {filtered_app.Id}, " +
-                        $"Imie: {filtered_app.ApplicantName}, " +
-                        $"Status: {filtered_app.Status}, " +
-                        $"Data: {filtered_app.CreatedAt}");
-                }
-
+                PrintApplications(filteredApps);
+               
                 break;
             }
 
@@ -231,6 +225,39 @@ while (continueInput)
             break;
 
         case "6":
+            Console.WriteLine("Wybierz sposób sortowania:");
+            Console.WriteLine("1. Imie rosnąco");
+            Console.WriteLine("2. Imie malejąco");
+            Console.WriteLine("3. Data rosnąco");
+            Console.WriteLine("4. Data malejąco");
+            Console.Write("Twój wybór: ");
+
+            var sortChoice = Console.ReadLine();
+            SortBy sortBy;
+
+            switch (sortChoice)
+            {
+                case "1":
+                    sortBy = SortBy.NameAsc;
+                    break;
+                case "2":
+                    sortBy = SortBy.NameDesc;
+                    break;
+                case "3":
+                    sortBy = SortBy.DateAsc;
+                    break;
+                case "4":
+                    sortBy = SortBy.DateDesc;
+                    break;
+                default:
+                    Console.WriteLine("Nieprawidłowy wybór sortowania.");
+                    continue;
+            }
+            var sortedApps = service.SortApplications(_lastView, sortBy);
+            PrintApplications(sortedApps);
+            break;
+
+        case "7":
             var applications = service.GetAll();
             if (!applications.Any())
             {
@@ -261,7 +288,7 @@ while (continueInput)
             }
             break;
 
-        case "7":
+        case "8":
             continueInput = false;
 
             var applicationsToSave = service.GetAll();
@@ -276,10 +303,10 @@ while (continueInput)
 }
 
 
-static void PrintApplications(IEnumerable<ApplicationRequest> applications)
+void PrintApplications(IEnumerable<ApplicationRequest> applications)
 {
+    _lastView = applications.ToList();
     Console.WriteLine("\nWszystkie wnioski:");
-
     foreach (var app in applications)
     {
         Console.WriteLine($"ID: {app.Id}, Imie: {app.ApplicantName}, Status: {app.Status}, Data: {app.CreatedAt}");
@@ -303,7 +330,6 @@ static void LoadApplicationsFromFile(ApplicationService service, string filePath
         {
             foreach (var app in applications)
             {
-                // Assuming ApplicationService has a method to add existing applications
                 service.AddExistingApplication(app);
             }
         }
